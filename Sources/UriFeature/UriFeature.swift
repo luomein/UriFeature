@@ -3,6 +3,27 @@ import ComposableArchitecture
 import Foundation
 
 extension UriFeature.State{
+    func getErrorMessage(uriKey: UriKey)->String?{
+        switch uriKey{
+        case .path:
+            return pathErrorMessage
+        default:
+            return nil
+        }
+    }
+    var pathErrorMessage : String?{
+        guard !uriParserPrinter.path.isEmpty else{
+            return nil
+        }
+        if !uriParserPrinter.path.starts(with: "/"){
+            return "path needs '/' prefix"
+        }
+        else{
+            return nil
+        }
+    }
+}
+extension UriFeature.State{
     var absoluteURLStringValid : Bool{
         return uriParserPrinter.url?.absoluteString == absoluteURLString
     }
@@ -31,7 +52,7 @@ struct UriFeature: ReducerProtocol{
         var items : IdentifiedArrayOf<UriQueryItemFeature.State> = []
         var absoluteURLString : String
         
-        public init(url: String, uuid: UUIDGenerator){
+        public init(url: String, uuid: UUIDGenerator? = nil){
             self.absoluteURLString = url
             do{
                 self.uriParserPrinter = try UriParserPrinter.parsePrint.parse(url)
@@ -51,12 +72,18 @@ struct UriFeature: ReducerProtocol{
         case joinItemAction(id:UriQueryItemFeature.State.ID,action:UriQueryItemFeature.Action)
         case addItem
         case deleteItem(id:UriQueryItemFeature.State.ID)
+        case deleteItemByIndexSet(IndexSet)
     }
     func syncFromItems(items: IdentifiedArrayOf<UriQueryItemFeature.State>, uriParserPrinter: inout UriParserPrinter, absoluteURLString: inout String){
         let filtered = items.filter({$0.queryItem.name != ""})
-        uriParserPrinter.queryItems = filtered.map({
-            UriParserPrinter.SubstringQueryItem(name: $0.queryItem.name[...],value: $0.queryItem.value?[...])
-        })
+        if !filtered.isEmpty{
+            uriParserPrinter.queryItems = filtered.map({
+                UriParserPrinter.SubstringQueryItem(name: $0.queryItem.name[...],value: $0.queryItem.value?[...])
+            })
+        }
+        else{
+            uriParserPrinter.queryItems = nil
+        }
         absoluteURLString = uriParserPrinter.url?.absoluteString ?? ""
     }
     
@@ -81,6 +108,12 @@ struct UriFeature: ReducerProtocol{
                 state.items.append(.init(queryItem: .init(name: "", value: nil), id: self.uuid() ))
             case .deleteItem(let id):
                 state.items.remove(id: id)
+                syncFromItems(items: state.items, uriParserPrinter: &state.uriParserPrinter, absoluteURLString: &state.absoluteURLString)
+            case .deleteItemByIndexSet(let indexSet):
+                for index in indexSet {
+                  //state.todos.remove(id: filteredTodos[index].id)
+                    state.items.remove(id: state.items[index].id)
+                }
                 syncFromItems(items: state.items, uriParserPrinter: &state.uriParserPrinter, absoluteURLString: &state.absoluteURLString)
             case .joinItemAction:
                 syncFromItems(items: state.items, uriParserPrinter: &state.uriParserPrinter, absoluteURLString: &state.absoluteURLString)

@@ -41,7 +41,8 @@ struct UriParserPrinter : Equatable{
         }
         catch{
             print(error)
-            fatalError()
+            //fatalError()
+            return nil
         }
     }
     var urlComponents : URLComponents?{

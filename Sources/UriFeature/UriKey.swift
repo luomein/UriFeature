@@ -8,7 +8,7 @@
 import Foundation
 
 
-enum UriKey{
+enum UriKey: String{
     case scheme
     case user
     case password
@@ -16,6 +16,7 @@ enum UriKey{
     case port
     case path
     
+    //func getKeyPathForOptionalSubstring<T>()->WritableKeyPath<UriParserPrinter,T> where T:Comparable, T:Equatable{
     func getKeyPathForOptionalSubstring()->WritableKeyPath<UriParserPrinter,Substring?>{
         switch self{
         case .scheme:
@@ -28,6 +29,24 @@ enum UriKey{
             return \.user
         case .password:
             return \.password
+        default:
+            fatalError()
+        }
+    }
+    func getKeyPathForNonOptionalSubstring()->WritableKeyPath<UriParserPrinter,Substring>{
+        switch self{
+        case .path:
+            return \.path
+        default:
+            fatalError()
+        }
+    }
+    func isPropertyOptional()->Bool{
+        switch self{
+        case .scheme, .host, .port, .user, .password:
+            return true
+        case .path:
+            return false
         default:
             fatalError()
         }

@@ -4,15 +4,21 @@ import Parsing
 import ComposableArchitecture
 
 final class UriFeatureTests: XCTestCase {
-    @MainActor
-    func testSetItems() async throws{
-        let initString = "//test/?key"
+    
+    func getTestStore(initString: String)->TestStore<UriFeature.State, UriFeature.Action, UriFeature.State, UriFeature.Action, ()>{
         let reducer = UriFeature()
         let testStore : TestStore = withDependencies {
             $0.uuid = .incrementing
         } operation: {
             TestStore(initialState: UriFeature.State(url: initString, uuid: reducer.uuid), reducer: reducer )
         }
+        return testStore
+    }
+    
+    @MainActor
+    func testSetItems() async throws{
+        let initString = "//test/?key"
+        let testStore = getTestStore(initString: initString)
         assert(testStore.state.absoluteURLStringValid)
         assert(testStore.state.urlQueryItemsValid)
         
@@ -53,17 +59,20 @@ final class UriFeatureTests: XCTestCase {
         }
         assert(testStore.state.absoluteURLStringValid)
         assert(testStore.state.urlQueryItemsValid)
+        
+        await testStore.send(.deleteItem(id: UUID(uuidString: "00000000-0000-0000-0000-000000000000")!)){
+            $0.items = []
+            $0.uriParserPrinter.queryItems = nil
+            $0.absoluteURLString = "//test/"
+        }
+        assert(testStore.state.absoluteURLStringValid)
+        assert(testStore.state.urlQueryItemsValid)
     }
     
     @MainActor
     func testSetRaw() async throws{
         let initString = "//test"
-        let reducer = UriFeature()
-        let testStore : TestStore = withDependencies {
-            $0.uuid = .incrementing
-        } operation: {
-            TestStore(initialState: UriFeature.State(url: initString, uuid: reducer.uuid), reducer: reducer )
-        }
+        let testStore = getTestStore(initString: initString)
 
         assert(testStore.state.absoluteURLStringValid)
         assert(testStore.state.urlQueryItemsValid)
@@ -86,12 +95,7 @@ final class UriFeatureTests: XCTestCase {
     @MainActor
     func testSetKeyValue() async throws{
         let initString = "//test"
-        let reducer = UriFeature()
-        let testStore : TestStore = withDependencies {
-            $0.uuid = .incrementing
-        } operation: {
-            TestStore(initialState: UriFeature.State(url: initString, uuid: reducer.uuid), reducer: reducer )
-        }
+        let testStore = getTestStore(initString: initString)
         assert(testStore.state.absoluteURLStringValid)
         testStore.dependencies.uuid = .incrementing
         
