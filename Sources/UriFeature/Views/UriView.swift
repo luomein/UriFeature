@@ -82,9 +82,17 @@ struct UriView: View {
                     ForEachStore(store.scope(state: \.items, action: UriFeature.Action.joinItemAction(id:action:))) { item in
                         UriQueryItemView(store: item)
                     }
-                    //
                     .onDelete { viewStore.send(.deleteItemByIndexSet($0)) }
-                    
+                    Button {
+                        viewStore.send(.addItem)
+                    } label: {
+                        HStack{
+                            Spacer()
+                            Text("+").font(.largeTitle)
+                            Spacer()
+                        }
+                    }
+
                 }label: {
                     Text("query items")
                         .badge(viewStore.state.urlQueryItems?.count ?? 0)

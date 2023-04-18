@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "UriFeature",
     platforms: [
-      .iOS(.v13),
+      .iOS(.v16),
       .macOS(.v10_15),
       .tvOS(.v13),
       .watchOS(.v6),
