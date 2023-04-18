@@ -8,21 +8,49 @@ import Parsing
 import ComposableArchitecture
 import Foundation
 
+struct UriMetadataQueryItemValueFeature: ReducerProtocol{
+    struct State: Equatable, Identifiable{
+        var id: UUID
+        var value : String = ""
+        var selected : Bool = false
+    }
+    enum Action: Equatable {
+        case switchSelected(Bool)
+        case setValue(String)
+    }
+    var body: some ReducerProtocol<State, Action> {
+        Reduce { state, action in
+            switch action{
+            case .setValue(let value):
+                state.value = value
+            case .switchSelected(let value):
+                state.selected = value
+            }
+            return .none
+        }
+    }
+}
 struct UriMetadataQueryItemFeature: ReducerProtocol{
+    @Dependency(\.uuid) var uuid
     struct State: Equatable, Identifiable{
         var id: UUID
         var name : String = ""
         var required : Bool = false
         var defaultValue : String = ""
         var fieldDataType : UriMetadataFeature.FieldDataType = .string
+        var valueList : IdentifiedArrayOf<UriMetadataQueryItemValueFeature.State> = []
     }
     enum Action: Equatable {
         case switchRequired(Bool)
         case setName(String)
         case setDefaultValue(String)
         case setFieldDataType(UriMetadataFeature.FieldDataType)
+        case deleteValueList(IndexSet)
+        case addValueList
+        case joinValueListAction(id:UriMetadataQueryItemValueFeature.State.ID,action:UriMetadataQueryItemValueFeature.Action)
     }
     var body: some ReducerProtocol<State, Action> {
+        
         Reduce { state, action in
             switch action{
             case .switchRequired(let value):
@@ -31,10 +59,54 @@ struct UriMetadataQueryItemFeature: ReducerProtocol{
                 state.name = value
             case .setDefaultValue(let value):
                 state.defaultValue = state.fieldDataType.getRegexMatched(value: value)
+                state.valueList = IdentifiedArray(uniqueElements:  state.valueList.map({
+                    var item = $0
+                    item.selected = false
+                    return item
+                }) )
+                let filtered = state.valueList.filter({
+                    $0.value == state.defaultValue
+                })
+                if !filtered.isEmpty{
+                    state.valueList[id: filtered.first!.id]?.selected = true
+                }
+                
             case .setFieldDataType(let value):
                 state.fieldDataType = value
+                state.defaultValue = state.fieldDataType.getRegexMatched(value: state.defaultValue)
+                state.valueList = IdentifiedArray(uniqueElements:  state.valueList.map({
+                    var item = $0
+                    item.value = state.fieldDataType.getRegexMatched(value: $0.value)
+                    return item
+                }) )
+            case .deleteValueList(let indexSet):
+                for index in indexSet {
+                    state.valueList.remove(id: state.valueList[index].id)
+                }
+            case .addValueList:
+                state.valueList.append(.init(id: self.uuid()))
+            case .joinValueListAction(let id, let subAction):
+                switch subAction{
+                case .setValue(let value):
+                    state.valueList[id: id]!.value = state.fieldDataType.getRegexMatched(value: value)
+                    if state.valueList[id: id]!.selected{
+                        state.defaultValue = state.valueList[id: id]!.value
+                    }
+                case .switchSelected(let value):
+                    if value{
+                        state.defaultValue = state.valueList[id: id]!.value
+                    }
+                    else{
+                        state.defaultValue = ""
+                    }
+                default:
+                    break
+                }
             }
             return .none
+        }
+        .forEach(\.valueList, action: /Action.joinValueListAction(id:action:)) {
+            UriMetadataQueryItemValueFeature()
         }
     }
 }
