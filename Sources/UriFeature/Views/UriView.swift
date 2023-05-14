@@ -94,14 +94,14 @@ public struct UriView: View {
                         Button {
                             viewStore.send(.addItem)
                         } label: {
-                            HStack{
-                                Spacer()
+                            
                                 Text("+").font(.largeTitle)
-                                Spacer()
-                            }
+                                
                         }
-                        .contentShape(Rectangle())
+                        .buttonStyle(.plain)
+                        //.contentShape(Rectangle())
                         EditButton()
+                            .buttonStyle(.plain)
                         Spacer()
                     }
 
