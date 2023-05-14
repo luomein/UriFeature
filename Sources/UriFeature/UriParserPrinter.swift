@@ -8,16 +8,16 @@
 import Foundation
 import Parsing
 
-struct UriParserPrinter : Equatable{
-    var scheme : Substring?
-    var user : Substring?
-    var password : Substring?
-    var host : Substring?
-    var port : Substring?
-    var path : Substring = ""
-    var queryItems : [SubstringQueryItem]?
+public struct UriParserPrinter : Equatable{
+    public var scheme : Substring?
+    public var user : Substring?
+    public var password : Substring?
+    public var host : Substring?
+    public var port : Substring?
+    public var path : Substring = ""
+    public var queryItems : [SubstringQueryItem]?
     
-    init(scheme: Substring? = nil ,
+    public init(scheme: Substring? = nil ,
          authority : ( (Substring, Substring?)?,  Substring,  Substring? )? = nil ,
          path: Substring = "",
          queryItems: [SubstringQueryItem]? = nil
@@ -69,9 +69,9 @@ struct UriParserPrinter : Equatable{
             ParsePrint(.substring) { Prefix { $0 != .init(ascii: "&") } }
         }
     }
-    struct SubstringQueryItem: Equatable{
-        var name : Substring
-        var value : Substring?
+    public struct SubstringQueryItem: Equatable{
+        public var name : Substring
+        public var value : Substring?
     }
     
     /// If the NSURLComponents has an authority component (user, password, host or port) and a path component, then the path must either begin with "/" or be an empty string. If the NSURLComponents does not have an authority component (user, password, host or port) and has a path component, the path component must not start with "//". If those requirements are not met, nil is returned.

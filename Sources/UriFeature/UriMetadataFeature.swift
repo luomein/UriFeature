@@ -8,17 +8,17 @@ import Parsing
 import ComposableArchitecture
 import Foundation
 
-struct UriMetadataQueryItemValueFeature: ReducerProtocol{
-    struct State: Equatable, Identifiable{
-        var id: UUID
-        var value : String = ""
-        var selected : Bool = false
+public struct UriMetadataQueryItemValueFeature: ReducerProtocol{
+    public struct State: Equatable, Identifiable{
+        public var id: UUID
+        public var value : String = ""
+        public var selected : Bool = false
     }
-    enum Action: Equatable {
+    public enum Action: Equatable {
         case switchSelected(Bool)
         case setValue(String)
     }
-    var body: some ReducerProtocol<State, Action> {
+    public var body: some ReducerProtocol<State, Action> {
         Reduce { state, action in
             switch action{
             case .setValue(let value):
@@ -30,17 +30,17 @@ struct UriMetadataQueryItemValueFeature: ReducerProtocol{
         }
     }
 }
-struct UriMetadataQueryItemFeature: ReducerProtocol{
+public struct UriMetadataQueryItemFeature: ReducerProtocol{
     @Dependency(\.uuid) var uuid
-    struct State: Equatable, Identifiable{
-        var id: UUID
-        var name : String = ""
-        var required : Bool = false
-        var defaultValue : String = ""
-        var fieldDataType : UriMetadataFeature.FieldDataType = .string
-        var valueList : IdentifiedArrayOf<UriMetadataQueryItemValueFeature.State> = []
+    public struct State: Equatable, Identifiable{
+        public var id: UUID
+        public var name : String = ""
+        public var required : Bool = false
+        public var defaultValue : String = ""
+        public var fieldDataType : UriMetadataFeature.FieldDataType = .string
+        public var valueList : IdentifiedArrayOf<UriMetadataQueryItemValueFeature.State> = []
     }
-    enum Action: Equatable {
+    public enum Action: Equatable {
         case switchRequired(Bool)
         case setName(String)
         case setDefaultValue(String)
@@ -49,7 +49,7 @@ struct UriMetadataQueryItemFeature: ReducerProtocol{
         case addValueList
         case joinValueListAction(id:UriMetadataQueryItemValueFeature.State.ID,action:UriMetadataQueryItemValueFeature.Action)
     }
-    var body: some ReducerProtocol<State, Action> {
+    public var body: some ReducerProtocol<State, Action> {
         
         Reduce { state, action in
             switch action{
@@ -110,21 +110,21 @@ struct UriMetadataQueryItemFeature: ReducerProtocol{
         }
     }
 }
-struct UriMetadataComponentFeature: ReducerProtocol{
-    struct State: Equatable, Identifiable{
-        var id: UUID
-        var uriKey : UriKey?
-        var required : Bool = false
-        var defaultValue : String = ""
-        var fieldDataType : UriMetadataFeature.FieldDataType = .string
+public struct UriMetadataComponentFeature: ReducerProtocol{
+    public struct State: Equatable, Identifiable{
+        public var id: UUID
+        public var uriKey : UriKey?
+        public var required : Bool = false
+        public var defaultValue : String = ""
+        public var fieldDataType : UriMetadataFeature.FieldDataType = .string
     }
-    enum Action: Equatable {
+    public enum Action: Equatable {
         case switchRequired(Bool)
         case setDefaultValue(String)
         case setUriKey(UriKey)
         case setFieldDataType(UriMetadataFeature.FieldDataType)
     }
-    var body: some ReducerProtocol<State, Action> {
+    public var body: some ReducerProtocol<State, Action> {
         Reduce { state, action in
             switch action{
             case .setUriKey(let value):
@@ -144,10 +144,10 @@ struct UriMetadataComponentFeature: ReducerProtocol{
     }
 }
 
-struct UriMetadataFeature: ReducerProtocol{
+public struct UriMetadataFeature: ReducerProtocol{
     @Dependency(\.uuid) var uuid
     
-    enum FieldDataType : Int{
+    public enum FieldDataType : Int{
         case digit = 0
         case string = 1
         
@@ -164,7 +164,7 @@ struct UriMetadataFeature: ReducerProtocol{
             }
         }
     }
-    struct State: Equatable{
+    public struct State: Equatable{
         var componentItems : IdentifiedArrayOf<UriMetadataComponentFeature.State> = []
         var queryItems : IdentifiedArrayOf<UriMetadataQueryItemFeature.State> = []
         
@@ -192,7 +192,7 @@ struct UriMetadataFeature: ReducerProtocol{
             return urlcomponent
         }
     }
-    enum Action: Equatable {
+    public enum Action: Equatable {
         case joinComponentItemAction(id:UriMetadataComponentFeature.State.ID,action:UriMetadataComponentFeature.Action)
         case joinQueryItemAction(id:UriMetadataQueryItemFeature.State.ID,action:UriMetadataQueryItemFeature.Action)
         case addComponentItem
@@ -200,7 +200,7 @@ struct UriMetadataFeature: ReducerProtocol{
         case deleteComponentItem(IndexSet)
         case deleteQueryItem(IndexSet)
     }
-    var body: some ReducerProtocol<State, Action> {
+    public var body: some ReducerProtocol<State, Action> {
         Reduce { state, action in
             switch action{
             case .addQueryItem:

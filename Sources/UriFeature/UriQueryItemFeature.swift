@@ -8,17 +8,17 @@
 import Foundation
 import ComposableArchitecture
 
-struct UriQueryItemFeature:ReducerProtocol{
+public struct UriQueryItemFeature:ReducerProtocol{
     
-    struct State: Equatable, Identifiable{
-        var queryItem : URLQueryItem
-        var id: UUID
+    public struct State: Equatable, Identifiable{
+        public var queryItem : URLQueryItem
+        public var id: UUID
     }
-    enum Action: Equatable {
+    public enum Action: Equatable {
         case setName(String)
         case setValue(String?)
     }
-    func reduce(into state: inout State, action: Action) ->EffectTask<Action> {
+    public func reduce(into state: inout State, action: Action) ->EffectTask<Action> {
         switch action{
         case .setName(let value):
             state.queryItem.name = value

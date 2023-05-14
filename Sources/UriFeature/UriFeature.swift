@@ -43,10 +43,10 @@ extension UriFeature.State{
         })
     }
 }
-struct UriFeature: ReducerProtocol{
+public struct UriFeature: ReducerProtocol{
     @Dependency(\.uuid) var uuid
     
-    struct State: Equatable{
+    public struct State: Equatable{
         
         var uriParserPrinter : UriParserPrinter
         var items : IdentifiedArrayOf<UriQueryItemFeature.State> = []
@@ -66,7 +66,7 @@ struct UriFeature: ReducerProtocol{
         
     }
     
-    enum Action: Equatable {
+    public enum Action: Equatable {
         case setRaw(String)
         case setValueByKey(key:UriKey, value:String)
         case joinItemAction(id:UriQueryItemFeature.State.ID,action:UriQueryItemFeature.Action)
@@ -88,7 +88,7 @@ struct UriFeature: ReducerProtocol{
     }
     
     
-    var body: some ReducerProtocol<State, Action> {
+    public var body: some ReducerProtocol<State, Action> {
         Reduce { state, action in
             switch action{
             case .setRaw(let value):

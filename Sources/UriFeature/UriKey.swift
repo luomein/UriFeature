@@ -8,7 +8,7 @@
 import Foundation
 
 
-enum UriKey: String{
+public enum UriKey: String{
     case scheme
     case user
     case password
@@ -16,7 +16,7 @@ enum UriKey: String{
     case port
     case path
     
-    enum URLComponentsKeyPathProperty{
+    public enum URLComponentsKeyPathProperty{
         case OptionalString
         case OptionalInt
         case String
