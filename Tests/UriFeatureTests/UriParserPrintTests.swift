@@ -19,7 +19,22 @@ final class UriParserPrintTests: XCTestCase {
         XCTAssertNotNil( URLComponents(string: str) )
         
         let parserPrinter = try UriParserPrinter.parsePrint.parse(str)
-        XCTAssertNil( parserPrinter.url )
+        XCTAssertNotNil( parserPrinter.urlComponents )
+        XCTAssertNotNil( parserPrinter.url )
+        print(parserPrinter.url)//scheme://xx:yy@aaa:8080/abc?value=a+b,%20c
+    }
+    func testCornerCases_whitespace()throws{
+        //need to "manually" build the percent encoded query string when there is "+"
+        //https://stackoverflow.com/questions/43052657/encode-using-urlcomponents-in-swift
+        let str = "scheme://xx:yy@aaa:8080/abc?value=a c"
+        XCTAssertNil( URL(string: str) )
+        XCTAssertNotNil( URLComponents(string: str) )
+        print(URLComponents(string: str)?.url?.absoluteString) // "scheme://xx:yy@aaa:8080/abc?value=a%20c"
+        
+        let parserPrinter = try UriParserPrinter.parsePrint.parse(str)
+        XCTAssertNotNil( parserPrinter.urlComponents )
+        XCTAssertNotNil( parserPrinter.url )
+        print(parserPrinter.url)
     }
     func testParse()throws{
         let str = "scheme://xx:yy@aaa:8080/abc?key=code"

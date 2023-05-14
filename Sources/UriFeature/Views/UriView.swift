@@ -121,11 +121,12 @@ public struct UriView: View {
     public var rawValueDisclosureGroup : some View{
         WithViewStore(self.store, observe: { $0 }) { viewStore in
             DisclosureGroup {
-                TextEditor(text: viewStore.binding(get: { state in
+                TextField("Raw Value", text: viewStore.binding(get: { state in
                     state.absoluteURLString
                 }, send: { value in
                     UriFeature.Action.setRaw(value)
-                }))
+                }),axis: .vertical)
+                .lineLimit(3...10)
             } label: {
                 HStack{
                     Text("Raw Value")

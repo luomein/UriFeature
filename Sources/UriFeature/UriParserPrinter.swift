@@ -34,22 +34,37 @@ public struct UriParserPrinter : Equatable{
     }
 
     var url : URL?{
+        if let urlComponents = urlComponents{
+            return urlComponents.url?.absoluteURL
+        }
+        return nil
+//        do{
+//            let str = try UriParserPrinter.parsePrint.print(self)
+//            //print(str)
+//            return URL(string: String.init(str)!)
+//        }
+//        catch{
+//            //print(error)
+//            //fatalError()
+//            return nil
+//        }
+    }
+    var urlComponents : URLComponents?{
         do{
             let str = try UriParserPrinter.parsePrint.print(self)
-            print(str)
-            return URL(string: String.init(str)!)
+            //print(str)
+            //return URL(string: String.init(str)!)
+            return URLComponents(string: String.init(str)!)
         }
         catch{
-            print(error)
+            //print(error)
             //fatalError()
             return nil
         }
-    }
-    var urlComponents : URLComponents?{
-        if let url = url{
-            return URLComponents(url: url, resolvingAgainstBaseURL: false)
-        }
-        return nil
+//        if let url = url{
+//            return URLComponents(url: url, resolvingAgainstBaseURL: false)
+//        }
+//        return nil
     }
 
     private static let schemeParsePrint = ParsePrint(.substring) { Prefix { $0 != .init(ascii: ":") && $0 != .init(ascii: "/")} }
