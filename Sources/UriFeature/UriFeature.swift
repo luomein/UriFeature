@@ -3,7 +3,7 @@ import ComposableArchitecture
 import Foundation
 
 extension UriFeature.State{
-    func getErrorMessage(uriKey: UriKey)->String?{
+    public func getErrorMessage(uriKey: UriKey)->String?{
         switch uriKey{
         case .path:
             return pathErrorMessage
@@ -11,7 +11,7 @@ extension UriFeature.State{
             return nil
         }
     }
-    var pathErrorMessage : String?{
+    public var pathErrorMessage : String?{
         guard !uriParserPrinter.path.isEmpty else{
             return nil
         }
@@ -24,13 +24,13 @@ extension UriFeature.State{
     }
 }
 extension UriFeature.State{
-    var absoluteURLStringValid : Bool{
+    public var absoluteURLStringValid : Bool{
         return uriParserPrinter.url?.absoluteString == absoluteURLString
     }
-    var urlQueryItemsValid : Bool{
+    public var urlQueryItemsValid : Bool{
         return urlQueryItems == uriParserPrinter.urlComponents?.queryItems
     }
-    var urlQueryItems : [URLQueryItem]?{
+    public var urlQueryItems : [URLQueryItem]?{
         guard !items.isEmpty else{
             return nil
         }
