@@ -10,9 +10,12 @@ import ComposableArchitecture
 
 @available(macOS 11.0, *)
 @available(iOS 15.0, *)
-struct UriQueryItemView: View {
+public struct UriQueryItemView: View {
     let store: StoreOf<UriQueryItemFeature>
-    var body: some View {
+    public init(store: StoreOf<UriQueryItemFeature>) {
+        self.store = store
+    }
+    public var body: some View {
         WithViewStore(self.store, observe: { $0 }) { viewStore in
             HStack{
                 TextField("name", text:viewStore.binding(get: { state in
@@ -38,8 +41,11 @@ struct UriQueryItemView: View {
 }
 @available(macOS 11.0, *)
 @available(iOS 15.0, *)
-struct UriView: View {
+public struct UriView: View {
     let store: StoreOf<UriFeature>
+    public init(store: StoreOf<UriFeature>) {
+        self.store = store
+    }
     func getUrlComponent(uriKey: UriKey)-> some View{
         WithViewStore(self.store, observe: { $0 }) { viewStore in
             VStack{
@@ -69,7 +75,7 @@ struct UriView: View {
             }
         }
     }
-    var parsedValueDisclosureGroup : some View{
+    public var parsedValueDisclosureGroup : some View{
         WithViewStore(self.store, observe: { $0 }) { viewStore in
             DisclosureGroup {
                 getUrlComponent(uriKey: .scheme)
@@ -111,7 +117,7 @@ struct UriView: View {
             }
         }
     }
-    var rawValueDisclosureGroup : some View{
+    public var rawValueDisclosureGroup : some View{
         WithViewStore(self.store, observe: { $0 }) { viewStore in
             DisclosureGroup {
                 TextEditor(text: viewStore.binding(get: { state in
@@ -132,7 +138,7 @@ struct UriView: View {
             }
         }
     }
-    var body: some View {
+    public var body: some View {
         WithViewStore(self.store, observe: { $0 }) { viewStore in
             Form {
                 rawValueDisclosureGroup
