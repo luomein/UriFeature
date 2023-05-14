@@ -34,6 +34,7 @@ public struct UriQueryItemView: View {
                     .multilineTextAlignment(.leading)
                 }
                 if readOnly{
+                    Spacer()
                     Text(viewStore.state.queryItem.value ?? "")
                 }
                 else{
@@ -68,11 +69,15 @@ public struct UriViewParsedValueDisclosureGroup: View {
                 HStack{
                     Text(uriKey.rawValue)
                     if readOnly{
+                        Spacer()
                         if uriKey.isPropertyOptional(){
                             Text( String(viewStore.state.uriParserPrinter[keyPath: uriKey.getKeyPathForOptionalSubstring()] ?? "") )
+                                
+                                //.multilineTextAlignment(.trailing)
                         }
                         else{
                             Text( String(viewStore.state.uriParserPrinter[keyPath: uriKey.getKeyPathForNonOptionalSubstring()]) )
+                                //.multilineTextAlignment(.trailing)
                         }
                     }
                     else{
@@ -116,17 +121,19 @@ public struct UriViewParsedValueDisclosureGroup: View {
                     .onDelete { viewStore.send(.deleteItemByIndexSet($0)) }
                     HStack{
                         Spacer()
-                        Button {
-                            viewStore.send(.addItem)
-                        } label: {
-                            
+                        if !readOnly{
+                            Button {
+                                viewStore.send(.addItem)
+                            } label: {
+                                
                                 Text("+").font(.largeTitle)
                                 
-                        }
-                        .buttonStyle(.plain)
-                        //.contentShape(Rectangle())
-                        EditButton()
+                            }
                             .buttonStyle(.plain)
+                            //.contentShape(Rectangle())
+                            EditButton()
+                                .buttonStyle(.plain)
+                        }
                         Spacer()
                     }
 
@@ -221,8 +228,8 @@ public struct UriView: View {
 @available(macOS 11.0, *)
 @available(iOS 15.0, *)
 struct UriView_Previews: PreviewProvider {
-    static var store: StoreOf<UriFeature> = Store(initialState: .init(url: ""), reducer: UriFeature() )
+    static var store: StoreOf<UriFeature> = Store(initialState: .init(url: "http://www.google.com/tesjkl/serjsklejr/teslkjlkdejsl/lsdkjfl?key=asdh&nam=fdjhgkdfjhg"), reducer: UriFeature() )
     static var previews: some View {
-        UriView(store: store)
+        UriView(store: store, readOnly: true)
     }
 }
