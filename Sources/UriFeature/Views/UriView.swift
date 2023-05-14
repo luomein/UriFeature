@@ -98,6 +98,7 @@ public struct UriView: View {
                             Spacer()
                         }
                     }
+                    .contentShape(Rectangle())
 
                 }label: {
                     Text("query items")
