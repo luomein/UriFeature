@@ -49,9 +49,9 @@ public struct UriFeature: ReducerProtocol{
     public init(){}
     public struct State: Equatable{
         
-        var uriParserPrinter : UriParserPrinter
-        var items : IdentifiedArrayOf<UriQueryItemFeature.State> = []
-        var absoluteURLString : String
+        public var uriParserPrinter : UriParserPrinter
+        public var items : IdentifiedArrayOf<UriQueryItemFeature.State> = []
+        public var absoluteURLString : String
         
         public init(url: String, uuid: UUIDGenerator? = nil){
             self.absoluteURLString = url
