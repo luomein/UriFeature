@@ -12,29 +12,40 @@ import ComposableArchitecture
 @available(iOS 15.0, *)
 public struct UriQueryItemView: View {
     let store: StoreOf<UriQueryItemFeature>
-    public init(store: StoreOf<UriQueryItemFeature>) {
+    let readOnly : Bool
+    public init(store: StoreOf<UriQueryItemFeature>, readOnly: Bool) {
         self.store = store
+        self.readOnly = readOnly
     }
     public var body: some View {
         WithViewStore(self.store, observe: { $0 }) { viewStore in
             HStack{
-                TextField("name", text:viewStore.binding(get: { state in
-                    state.queryItem.name
-                }, send: { value in
-                    UriQueryItemFeature.Action.setName(value)
-                }))
-                .autocorrectionDisabled(true)
-                .textInputAutocapitalization(.never)
-                .multilineTextAlignment(.leading)
-                
-                TextField("value", text:viewStore.binding(get: { state in
-                    state.queryItem.value ?? ""
-                }, send: { value in
-                    UriQueryItemFeature.Action.setValue(value)
-                }))
-                .autocorrectionDisabled(true)
-                .textInputAutocapitalization(.never)
-                .multilineTextAlignment(.trailing)
+                if readOnly{
+                    Text(viewStore.state.queryItem.name)
+                }
+                else{
+                    TextField("name", text:viewStore.binding(get: { state in
+                        state.queryItem.name
+                    }, send: { value in
+                        UriQueryItemFeature.Action.setName(value)
+                    }))
+                    .autocorrectionDisabled(true)
+                    .textInputAutocapitalization(.never)
+                    .multilineTextAlignment(.leading)
+                }
+                if readOnly{
+                    Text(viewStore.state.queryItem.value ?? "")
+                }
+                else{
+                    TextField("value", text:viewStore.binding(get: { state in
+                        state.queryItem.value ?? ""
+                    }, send: { value in
+                        UriQueryItemFeature.Action.setValue(value)
+                    }))
+                    .autocorrectionDisabled(true)
+                    .textInputAutocapitalization(.never)
+                    .multilineTextAlignment(.trailing)
+                }
             }
         }
     }
@@ -43,28 +54,44 @@ public struct UriQueryItemView: View {
 @available(iOS 15.0, *)
 public struct UriView: View {
     let store: StoreOf<UriFeature>
-    public init(store: StoreOf<UriFeature>) {
+    let readOnly : Bool
+    @State var parsedValueDisclosureGroupIsExpand: Bool
+    @State var rawValueDisclosureGroupIsExpand: Bool
+    public init(store: StoreOf<UriFeature>, readOnly : Bool = false, parsedValueDisclosureGroupIsExpand: Bool = false
+                , rawValueDisclosureGroupIsExpand: Bool = false) {
         self.store = store
+        self.readOnly = readOnly
+        self.parsedValueDisclosureGroupIsExpand = parsedValueDisclosureGroupIsExpand
+        self.rawValueDisclosureGroupIsExpand = rawValueDisclosureGroupIsExpand
     }
     func getUrlComponent(uriKey: UriKey)-> some View{
         WithViewStore(self.store, observe: { $0 }) { viewStore in
             VStack{
                 HStack{
                     Text(uriKey.rawValue)
-                    
-                    TextField(uriKey.rawValue, text:viewStore.binding(get: { state in
+                    if readOnly{
                         if uriKey.isPropertyOptional(){
-                            return String(state.uriParserPrinter[keyPath: uriKey.getKeyPathForOptionalSubstring()] ?? "")
+                            Text( String(viewStore.state.uriParserPrinter[keyPath: uriKey.getKeyPathForOptionalSubstring()] ?? "") )
                         }
                         else{
-                            return String(state.uriParserPrinter[keyPath: uriKey.getKeyPathForNonOptionalSubstring()])
+                            Text( String(viewStore.state.uriParserPrinter[keyPath: uriKey.getKeyPathForNonOptionalSubstring()]) )
                         }
-                    }, send: { value in
-                        UriFeature.Action.setValueByKey(key: uriKey, value: value)
-                    }))
-                    .autocorrectionDisabled(true)
-                    .textInputAutocapitalization(.never)
-                    .multilineTextAlignment(.trailing)
+                    }
+                    else{
+                        TextField(uriKey.rawValue, text:viewStore.binding(get: { state in
+                            if uriKey.isPropertyOptional(){
+                                return String(state.uriParserPrinter[keyPath: uriKey.getKeyPathForOptionalSubstring()] ?? "")
+                            }
+                            else{
+                                return String(state.uriParserPrinter[keyPath: uriKey.getKeyPathForNonOptionalSubstring()])
+                            }
+                        }, send: { value in
+                            UriFeature.Action.setValueByKey(key: uriKey, value: value)
+                        }))
+                        .autocorrectionDisabled(true)
+                        .textInputAutocapitalization(.never)
+                        .multilineTextAlignment(.trailing)
+                    }
                 }
                 HStack{
                     Spacer()
@@ -77,7 +104,7 @@ public struct UriView: View {
     }
     public var parsedValueDisclosureGroup : some View{
         WithViewStore(self.store, observe: { $0 }) { viewStore in
-            DisclosureGroup {
+            DisclosureGroup(isExpanded: $parsedValueDisclosureGroupIsExpand){
                 getUrlComponent(uriKey: .scheme)
                 getUrlComponent(uriKey: .host)
                 getUrlComponent(uriKey: .user)
@@ -86,7 +113,7 @@ public struct UriView: View {
                 getUrlComponent(uriKey: .path)
                 DisclosureGroup {
                     ForEachStore(store.scope(state: \.items, action: UriFeature.Action.joinItemAction(id:action:))) { item in
-                        UriQueryItemView(store: item)
+                        UriQueryItemView(store: item, readOnly: readOnly)
                     }
                     .onDelete { viewStore.send(.deleteItemByIndexSet($0)) }
                     HStack{
@@ -127,13 +154,18 @@ public struct UriView: View {
     }
     public var rawValueDisclosureGroup : some View{
         WithViewStore(self.store, observe: { $0 }) { viewStore in
-            DisclosureGroup {
-                TextField("Raw Value", text: viewStore.binding(get: { state in
-                    state.absoluteURLString
-                }, send: { value in
-                    UriFeature.Action.setRaw(value)
-                }),axis: .vertical)
-                .lineLimit(3...10)
+            DisclosureGroup(isExpanded:$rawValueDisclosureGroupIsExpand) {
+                if readOnly{
+                    Text(viewStore.absoluteURLString)
+                }
+                else{
+                    TextField("Raw Value", text: viewStore.binding(get: { state in
+                        state.absoluteURLString
+                    }, send: { value in
+                        UriFeature.Action.setRaw(value)
+                    }),axis: .vertical)
+                    .lineLimit(3...10)
+                }
             } label: {
                 HStack{
                     Text("Raw Value")
