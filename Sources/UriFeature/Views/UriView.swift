@@ -89,20 +89,27 @@ public struct UriView: View {
                         UriQueryItemView(store: item)
                     }
                     .onDelete { viewStore.send(.deleteItemByIndexSet($0)) }
-                    Button {
-                        viewStore.send(.addItem)
-                    } label: {
-                        HStack{
-                            Spacer()
-                            Text("+").font(.largeTitle)
-                            Spacer()
+                    HStack{
+                        Spacer()
+                        Button {
+                            viewStore.send(.addItem)
+                        } label: {
+                            HStack{
+                                Spacer()
+                                Text("+").font(.largeTitle)
+                                Spacer()
+                            }
                         }
+                        .contentShape(Rectangle())
+                        EditButton()
+                        Spacer()
                     }
-                    .contentShape(Rectangle())
 
                 }label: {
+                    
                     Text("query items")
                         .badge(viewStore.state.urlQueryItems?.count ?? 0)
+                    
                 }
             } label: {
                 HStack{
