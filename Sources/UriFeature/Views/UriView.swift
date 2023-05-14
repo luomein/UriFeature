@@ -52,17 +52,15 @@ public struct UriQueryItemView: View {
 }
 @available(macOS 11.0, *)
 @available(iOS 15.0, *)
-public struct UriView: View {
+public struct UriViewParsedValueDisclosureGroup: View {
     let store: StoreOf<UriFeature>
     let readOnly : Bool
-    @State var parsedValueDisclosureGroupIsExpand: Bool
-    @State var rawValueDisclosureGroupIsExpand: Bool
-    public init(store: StoreOf<UriFeature>, readOnly : Bool = false, parsedValueDisclosureGroupIsExpand: Bool = false
-                , rawValueDisclosureGroupIsExpand: Bool = false) {
+    @State var isExpand: Bool
+    public init(store: StoreOf<UriFeature>, readOnly : Bool = false, isExpand: Bool = false    ) {
         self.store = store
         self.readOnly = readOnly
-        self.parsedValueDisclosureGroupIsExpand = parsedValueDisclosureGroupIsExpand
-        self.rawValueDisclosureGroupIsExpand = rawValueDisclosureGroupIsExpand
+        self.isExpand = isExpand
+ 
     }
     func getUrlComponent(uriKey: UriKey)-> some View{
         WithViewStore(self.store, observe: { $0 }) { viewStore in
@@ -102,9 +100,9 @@ public struct UriView: View {
             }
         }
     }
-    public var parsedValueDisclosureGroup : some View{
+    public var body : some View{
         WithViewStore(self.store, observe: { $0 }) { viewStore in
-            DisclosureGroup(isExpanded: $parsedValueDisclosureGroupIsExpand){
+            DisclosureGroup(isExpanded: $isExpand){
                 getUrlComponent(uriKey: .scheme)
                 getUrlComponent(uriKey: .host)
                 getUrlComponent(uriKey: .user)
@@ -152,9 +150,22 @@ public struct UriView: View {
             }
         }
     }
-    public var rawValueDisclosureGroup : some View{
+}
+@available(macOS 11.0, *)
+@available(iOS 15.0, *)
+public struct UriViewRawValueDisclosureGroup: View {
+    let store: StoreOf<UriFeature>
+    let readOnly : Bool
+    @State var isExpand: Bool
+    public init(store: StoreOf<UriFeature>, readOnly : Bool = false, isExpand: Bool = false    ) {
+        self.store = store
+        self.readOnly = readOnly
+        self.isExpand = isExpand
+        
+    }
+    public var body : some View{
         WithViewStore(self.store, observe: { $0 }) { viewStore in
-            DisclosureGroup(isExpanded:$rawValueDisclosureGroupIsExpand) {
+            DisclosureGroup(isExpanded:$isExpand) {
                 if readOnly{
                     Text(viewStore.absoluteURLString)
                 }
@@ -179,11 +190,29 @@ public struct UriView: View {
             }
         }
     }
+}
+@available(macOS 11.0, *)
+@available(iOS 15.0, *)
+public struct UriView: View {
+    let store: StoreOf<UriFeature>
+    let readOnly : Bool
+    @State var parsedValueDisclosureGroupIsExpand: Bool
+    @State var rawValueDisclosureGroupIsExpand: Bool
+    public init(store: StoreOf<UriFeature>, readOnly : Bool = false, parsedValueDisclosureGroupIsExpand: Bool = false
+                , rawValueDisclosureGroupIsExpand: Bool = false) {
+        self.store = store
+        self.readOnly = readOnly
+        self.parsedValueDisclosureGroupIsExpand = parsedValueDisclosureGroupIsExpand
+        self.rawValueDisclosureGroupIsExpand = rawValueDisclosureGroupIsExpand
+    }
+    
+    
     public var body: some View {
         WithViewStore(self.store, observe: { $0 }) { viewStore in
             Form {
-                rawValueDisclosureGroup
-                parsedValueDisclosureGroup
+                UriViewRawValueDisclosureGroup(store: store, readOnly: readOnly, isExpand: rawValueDisclosureGroupIsExpand)
+                //parsedValueDisclosureGroup
+                UriViewParsedValueDisclosureGroup(store: store,readOnly: readOnly, isExpand: parsedValueDisclosureGroupIsExpand)
             }
         }
     }
