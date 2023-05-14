@@ -46,6 +46,7 @@ extension UriFeature.State{
 public struct UriFeature: ReducerProtocol{
     @Dependency(\.uuid) var uuid
     
+    public init(){}
     public struct State: Equatable{
         
         var uriParserPrinter : UriParserPrinter
